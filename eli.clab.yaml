@@ -147,9 +147,11 @@ topology:
         GF_AUTH_ANONYMOUS_ENABLED: "true"
         GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
         GF_AUTH_ANONYMOUS: "true"
+        GF_USERS_DEFAULT_THEME: "light"
     promtail:
       kind: linux
       image: grafana/promtail:3.2.0
+      mgmt-ipv4: 172.20.20.100
       binds:
         - ./configs/promtail:/etc/promtail
       cmd: --config.file=/etc/promtail/promtail-config.yml

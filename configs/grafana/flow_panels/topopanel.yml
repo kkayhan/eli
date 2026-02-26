@@ -15,6 +15,9 @@ anchors:
     decimalPoints: 1
     valueMappings:
       - { valueMax: 99, text: "\u200B" }
+  textcolor-config: &textcolor-config
+    thresholds:
+      - { color: "black", level: 0 }
 cellIdPreamble: "cell-"
 cells:
   "wan-core:e1-1":
@@ -28,11 +31,13 @@ cells:
   "link_id:wan-core:e1-1:pe1:e1-32":
     dataRef: "wan-core:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:pe1:e1-32:wan-core:e1-1":
     dataRef: "pe1:e1-32:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "wan-core:e1-2":
@@ -46,11 +51,13 @@ cells:
   "link_id:wan-core:e1-2:pe2:e1-32":
     dataRef: "wan-core:e1-2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:pe2:e1-32:wan-core:e1-2":
     dataRef: "pe2:e1-32:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "wan-core:e1-10":
@@ -64,11 +71,13 @@ cells:
   "link_id:wan-core:e1-10:server-wan:eth1":
     dataRef: "wan-core:e1-10:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:server-wan:eth1:wan-core:e1-10":
     dataRef: "server-wan:eth1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "pe1:e1-1":
@@ -82,11 +91,13 @@ cells:
   "link_id:pe1:e1-1:b-leaf1:e1-32":
     dataRef: "pe1:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:b-leaf1:e1-32:pe1:e1-1":
     dataRef: "b-leaf1:e1-32:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "pe2:e1-1":
@@ -100,11 +111,13 @@ cells:
   "link_id:pe2:e1-1:b-leaf2:e1-32":
     dataRef: "pe2:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:b-leaf2:e1-32:pe2:e1-1":
     dataRef: "b-leaf2:e1-32:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "b-leaf1:e1-10":
@@ -118,11 +131,13 @@ cells:
   "link_id:b-leaf1:e1-10:fw1:eth1":
     dataRef: "b-leaf1:e1-10:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:fw1:eth1:b-leaf1:e1-10":
     dataRef: "fw1:eth1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "b-leaf2:e1-10":
@@ -136,11 +151,13 @@ cells:
   "link_id:b-leaf2:e1-10:fw2:eth1":
     dataRef: "b-leaf2:e1-10:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:fw2:eth1:b-leaf2:e1-10":
     dataRef: "fw2:eth1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "b-leaf1:e1-1":
@@ -154,11 +171,13 @@ cells:
   "link_id:b-leaf1:e1-1:spine1:e1-31":
     dataRef: "b-leaf1:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:spine1:e1-31:b-leaf1:e1-1":
     dataRef: "spine1:e1-31:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "b-leaf1:e1-2":
@@ -172,11 +191,13 @@ cells:
   "link_id:b-leaf1:e1-2:spine2:e1-31":
     dataRef: "b-leaf1:e1-2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:spine2:e1-31:b-leaf1:e1-2":
     dataRef: "spine2:e1-31:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "b-leaf2:e1-1":
@@ -190,11 +211,13 @@ cells:
   "link_id:b-leaf2:e1-1:spine1:e1-32":
     dataRef: "b-leaf2:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:spine1:e1-32:b-leaf2:e1-1":
     dataRef: "spine1:e1-32:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "b-leaf2:e1-2":
@@ -208,11 +231,13 @@ cells:
   "link_id:b-leaf2:e1-2:spine2:e1-32":
     dataRef: "b-leaf2:e1-2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:spine2:e1-32:b-leaf2:e1-2":
     dataRef: "spine2:e1-32:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine1:e1-1":
@@ -226,11 +251,13 @@ cells:
   "link_id:spine1:e1-1:leaf1:e1-49":
     dataRef: "spine1:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf1:e1-49:spine1:e1-1":
     dataRef: "leaf1:e1-49:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine1:e1-2":
@@ -244,11 +271,13 @@ cells:
   "link_id:spine1:e1-2:leaf2:e1-49":
     dataRef: "spine1:e1-2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf2:e1-49:spine1:e1-2":
     dataRef: "leaf2:e1-49:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine1:e1-3":
@@ -262,11 +291,13 @@ cells:
   "link_id:spine1:e1-3:leaf3:e1-49":
     dataRef: "spine1:e1-3:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf3:e1-49:spine1:e1-3":
     dataRef: "leaf3:e1-49:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine1:e1-4":
@@ -280,11 +311,13 @@ cells:
   "link_id:spine1:e1-4:leaf4:e1-49":
     dataRef: "spine1:e1-4:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf4:e1-49:spine1:e1-4":
     dataRef: "leaf4:e1-49:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine2:e1-1":
@@ -298,11 +331,13 @@ cells:
   "link_id:spine2:e1-1:leaf1:e1-50":
     dataRef: "spine2:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf1:e1-50:spine2:e1-1":
     dataRef: "leaf1:e1-50:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine2:e1-2":
@@ -316,11 +351,13 @@ cells:
   "link_id:spine2:e1-2:leaf2:e1-50":
     dataRef: "spine2:e1-2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf2:e1-50:spine2:e1-2":
     dataRef: "leaf2:e1-50:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine2:e1-3":
@@ -334,11 +371,13 @@ cells:
   "link_id:spine2:e1-3:leaf3:e1-50":
     dataRef: "spine2:e1-3:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf3:e1-50:spine2:e1-3":
     dataRef: "leaf3:e1-50:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "spine2:e1-4":
@@ -352,11 +391,13 @@ cells:
   "link_id:spine2:e1-4:leaf4:e1-50":
     dataRef: "spine2:e1-4:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf4:e1-50:spine2:e1-4":
     dataRef: "leaf4:e1-50:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "server1:eth1":
@@ -370,11 +411,13 @@ cells:
   "link_id:server1:eth1:leaf1:e1-1":
     dataRef: "server1:eth1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf1:e1-1:server1:eth1":
     dataRef: "leaf1:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "server1:eth2":
@@ -388,11 +431,13 @@ cells:
   "link_id:server1:eth2:leaf2:e1-1":
     dataRef: "server1:eth2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf2:e1-1:server1:eth2":
     dataRef: "leaf2:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "server2:eth1":
@@ -406,11 +451,13 @@ cells:
   "link_id:server2:eth1:leaf3:e1-1":
     dataRef: "server2:eth1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf3:e1-1:server2:eth1":
     dataRef: "leaf3:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "server2:eth2":
@@ -424,10 +471,12 @@ cells:
   "link_id:server2:eth2:leaf4:e1-1":
     dataRef: "server2:eth2:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf4:e1-1:server2:eth2":
     dataRef: "leaf4:e1-1:out"
     label: *label-config
+    fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
