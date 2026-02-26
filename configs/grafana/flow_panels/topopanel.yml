@@ -65,7 +65,7 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "server-wan:eth1":
-    dataRef: "oper-state:server-wan:eth1"
+    dataRef: "oper-state:wan-core:e1-10"
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:wan-core:e1-10:server-wan:eth1":
@@ -75,7 +75,7 @@ cells:
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:server-wan:eth1:wan-core:e1-10":
-    dataRef: "server-wan:eth1:out"
+    dataRef: "wan-core:e1-10:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
@@ -125,7 +125,7 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "fw1:eth1":
-    dataRef: "oper-state:fw1:eth1"
+    dataRef: "oper-state:b-leaf1:e1-10"
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:b-leaf1:e1-10:fw1:eth1":
@@ -135,7 +135,7 @@ cells:
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:fw1:eth1:b-leaf1:e1-10":
-    dataRef: "fw1:eth1:out"
+    dataRef: "b-leaf1:e1-10:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
@@ -145,7 +145,7 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "fw2:eth1":
-    dataRef: "oper-state:fw2:eth1"
+    dataRef: "oper-state:b-leaf2:e1-10"
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:b-leaf2:e1-10:fw2:eth1":
@@ -155,7 +155,7 @@ cells:
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:fw2:eth1:b-leaf2:e1-10":
-    dataRef: "fw2:eth1:out"
+    dataRef: "b-leaf2:e1-10:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
@@ -320,6 +320,46 @@ cells:
     fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
+  "spine1:e1-5":
+    dataRef: "oper-state:spine1:e1-5"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf5:e1-49":
+    dataRef: "oper-state:leaf5:e1-49"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:spine1:e1-5:leaf5:e1-49":
+    dataRef: "spine1:e1-5:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf5:e1-49:spine1:e1-5":
+    dataRef: "leaf5:e1-49:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "spine1:e1-6":
+    dataRef: "oper-state:spine1:e1-6"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf6:e1-49":
+    dataRef: "oper-state:leaf6:e1-49"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:spine1:e1-6:leaf6:e1-49":
+    dataRef: "spine1:e1-6:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf6:e1-49:spine1:e1-6":
+    dataRef: "leaf6:e1-49:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
   "spine2:e1-1":
     dataRef: "oper-state:spine2:e1-1"
     fillColor:
@@ -400,8 +440,48 @@ cells:
     fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
+  "spine2:e1-5":
+    dataRef: "oper-state:spine2:e1-5"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf5:e1-50":
+    dataRef: "oper-state:leaf5:e1-50"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:spine2:e1-5:leaf5:e1-50":
+    dataRef: "spine2:e1-5:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf5:e1-50:spine2:e1-5":
+    dataRef: "leaf5:e1-50:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "spine2:e1-6":
+    dataRef: "oper-state:spine2:e1-6"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf6:e1-50":
+    dataRef: "oper-state:leaf6:e1-50"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:spine2:e1-6:leaf6:e1-50":
+    dataRef: "spine2:e1-6:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf6:e1-50:spine2:e1-6":
+    dataRef: "leaf6:e1-50:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
   "server1:eth1":
-    dataRef: "oper-state:server1:eth1"
+    dataRef: "oper-state:leaf1:e1-1"
     fillColor:
       thresholds: *thresholds-operstate
   "leaf1:e1-1":
@@ -409,7 +489,7 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:server1:eth1:leaf1:e1-1":
-    dataRef: "server1:eth1:out"
+    dataRef: "leaf1:e1-1:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
@@ -421,7 +501,7 @@ cells:
     strokeColor:
       thresholds: *thresholds-traffic
   "server1:eth2":
-    dataRef: "oper-state:server1:eth2"
+    dataRef: "oper-state:leaf2:e1-1"
     fillColor:
       thresholds: *thresholds-operstate
   "leaf2:e1-1":
@@ -429,7 +509,7 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:server1:eth2:leaf2:e1-1":
-    dataRef: "server1:eth2:out"
+    dataRef: "leaf2:e1-1:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
@@ -441,7 +521,7 @@ cells:
     strokeColor:
       thresholds: *thresholds-traffic
   "server2:eth1":
-    dataRef: "oper-state:server2:eth1"
+    dataRef: "oper-state:leaf3:e1-1"
     fillColor:
       thresholds: *thresholds-operstate
   "leaf3:e1-1":
@@ -449,7 +529,7 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:server2:eth1:leaf3:e1-1":
-    dataRef: "server2:eth1:out"
+    dataRef: "leaf3:e1-1:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
@@ -461,7 +541,7 @@ cells:
     strokeColor:
       thresholds: *thresholds-traffic
   "server2:eth2":
-    dataRef: "oper-state:server2:eth2"
+    dataRef: "oper-state:leaf4:e1-1"
     fillColor:
       thresholds: *thresholds-operstate
   "leaf4:e1-1":
@@ -469,13 +549,93 @@ cells:
     fillColor:
       thresholds: *thresholds-operstate
   "link_id:server2:eth2:leaf4:e1-1":
-    dataRef: "server2:eth2:out"
+    dataRef: "leaf4:e1-1:in"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:
       thresholds: *thresholds-traffic
   "link_id:leaf4:e1-1:server2:eth2":
     dataRef: "leaf4:e1-1:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "server3:eth1":
+    dataRef: "oper-state:leaf3:e1-2"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf3:e1-2":
+    dataRef: "oper-state:leaf3:e1-2"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:server3:eth1:leaf3:e1-2":
+    dataRef: "leaf3:e1-2:in"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf3:e1-2:server3:eth1":
+    dataRef: "leaf3:e1-2:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "server3:eth2":
+    dataRef: "oper-state:leaf4:e1-2"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf4:e1-2":
+    dataRef: "oper-state:leaf4:e1-2"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:server3:eth2:leaf4:e1-2":
+    dataRef: "leaf4:e1-2:in"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf4:e1-2:server3:eth2":
+    dataRef: "leaf4:e1-2:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "server4:eth1":
+    dataRef: "oper-state:leaf5:e1-1"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf5:e1-1":
+    dataRef: "oper-state:leaf5:e1-1"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:server4:eth1:leaf5:e1-1":
+    dataRef: "leaf5:e1-1:in"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf5:e1-1:server4:eth1":
+    dataRef: "leaf5:e1-1:out"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "server4:eth2":
+    dataRef: "oper-state:leaf6:e1-1"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "leaf6:e1-1":
+    dataRef: "oper-state:leaf6:e1-1"
+    fillColor:
+      thresholds: *thresholds-operstate
+  "link_id:server4:eth2:leaf6:e1-1":
+    dataRef: "leaf6:e1-1:in"
+    label: *label-config
+    fillColor: *textcolor-config
+    strokeColor:
+      thresholds: *thresholds-traffic
+  "link_id:leaf6:e1-1:server4:eth2":
+    dataRef: "leaf6:e1-1:out"
     label: *label-config
     fillColor: *textcolor-config
     strokeColor:

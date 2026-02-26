@@ -35,6 +35,12 @@ topology:
     leaf4:
       type: ixr-d2l
       startup-config: ./configs/startup_configs/leaf4.cfg
+    leaf5:
+      type: ixr-d2l
+      startup-config: ./configs/startup_configs/leaf5.cfg
+    leaf6:
+      type: ixr-d2l
+      startup-config: ./configs/startup_configs/leaf6.cfg
     pe1:
       type: ixr-d3l
       startup-config: ./configs/startup_configs/pe1.cfg
@@ -82,6 +88,48 @@ topology:
         - sudo ip route add default via 10.10.10.254
 
     server2:
+      kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - sudo ip link set eth2 down
+        - ip route add default via 172.20.20.1 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
+        - sudo ip link set eth1 master bond0
+        - sudo ip link set eth2 master bond0
+        - sudo ip link set eth1 up
+        - sudo ip link set eth2 up
+        - sudo ip link set bond0 up
+        - sudo ip link add link bond0 name bond0.1 type vlan id 1
+        - sudo ip addr add 10.10.10.2/24 dev bond0.1
+        - sudo ip link set bond0.1 up
+        - sudo ip route add default via 10.10.10.254
+
+    server3:
+      kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - sudo ip link set eth2 down
+        - ip route add default via 172.20.20.1 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
+        - sudo ip link set eth1 master bond0
+        - sudo ip link set eth2 master bond0
+        - sudo ip link set eth1 up
+        - sudo ip link set eth2 up
+        - sudo ip link set bond0 up
+        - sudo ip link add link bond0 name bond0.1 type vlan id 1
+        - sudo ip addr add 10.10.10.2/24 dev bond0.1
+        - sudo ip link set bond0.1 up
+        - sudo ip route add default via 10.10.10.254
+
+    server4:
       kind: linux
       exec:
         - sudo ip link set eth0 down
@@ -192,13 +240,21 @@ topology:
     - endpoints: [ "spine1:e1-2", "leaf2:e1-49" ]
     - endpoints: [ "spine1:e1-3", "leaf3:e1-49" ]
     - endpoints: [ "spine1:e1-4", "leaf4:e1-49" ]
+    - endpoints: [ "spine1:e1-5", "leaf5:e1-49" ]
+    - endpoints: [ "spine1:e1-6", "leaf6:e1-49" ]
     - endpoints: [ "spine2:e1-1", "leaf1:e1-50" ]
     - endpoints: [ "spine2:e1-2", "leaf2:e1-50" ]
     - endpoints: [ "spine2:e1-3", "leaf3:e1-50" ]
     - endpoints: [ "spine2:e1-4", "leaf4:e1-50" ]
+    - endpoints: [ "spine2:e1-5", "leaf5:e1-50" ]
+    - endpoints: [ "spine2:e1-6", "leaf6:e1-50" ]
 
     #### Server Access  ###
     - endpoints: [ "server1:eth1", "leaf1:e1-1" ]
     - endpoints: [ "server1:eth2", "leaf2:e1-1" ]
     - endpoints: [ "server2:eth1", "leaf3:e1-1" ]
     - endpoints: [ "server2:eth2", "leaf4:e1-1" ]
+    - endpoints: [ "server3:eth1", "leaf3:e1-2" ]
+    - endpoints: [ "server3:eth2", "leaf4:e1-2" ]
+    - endpoints: [ "server4:eth1", "leaf5:e1-1" ]
+    - endpoints: [ "server4:eth2", "leaf6:e1-1" ]

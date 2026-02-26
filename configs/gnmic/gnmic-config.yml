@@ -23,6 +23,8 @@ targets:
   leaf2: *common_srl_subs
   leaf3: *common_srl_subs
   leaf4: *common_srl_subs
+  leaf5: *common_srl_subs
+  leaf6: *common_srl_subs
   pe1: *common_srl_subs
   pe2: *common_srl_subs
   wan-core: *common_srl_subs
