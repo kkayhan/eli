@@ -1,0 +1,8 @@
+# Ignore everything
+*
+
+# Un-ignore specific files and folders
+!.gitignore
+!eli.clab.yaml
+!/configs/
+!/configs/**

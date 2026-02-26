@@ -1,0 +1,202 @@
+name: eli
+prefix: ""
+
+topology:
+  defaults:
+    kind: nokia_srlinux
+  kinds:
+    nokia_srlinux:
+      image: ghcr.io/nokia/srlinux:25.10.2
+    linux:
+      image: ghcr.io/srl-labs/network-multitool
+  #########################################################
+  nodes:
+    spine1:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/spine1.cfg
+    spine2:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/spine2.cfg
+    b-leaf1:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/b-leaf1.cfg
+    b-leaf2:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/b-leaf2.cfg
+    leaf1:
+      type: ixr-d2l
+      startup-config: ./configs/startup_configs/leaf1.cfg
+    leaf2:
+      type: ixr-d2l
+      startup-config: ./configs/startup_configs/leaf2.cfg
+    leaf3:
+      type: ixr-d2l
+      startup-config: ./configs/startup_configs/leaf3.cfg
+    leaf4:
+      type: ixr-d2l
+      startup-config: ./configs/startup_configs/leaf4.cfg
+    pe1:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/pe1.cfg
+    pe2:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/pe2.cfg
+    wan-core:
+      type: ixr-d3l
+      startup-config: ./configs/startup_configs/wan-core.cfg
+    #########################################################
+    fw1:
+      kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - ip route add default via 172.20.20.1 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        - sudo ip addr add 100.100.100.100/24 dev eth1
+        - sudo ip link set eth1 up
+        - sudo ip route add default via 100.100.100.254
+    fw2:
+      kind: linux
+
+    server1:
+      kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - sudo ip link set eth2 down
+        - ip route add default via 172.20.20.1 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
+        - sudo ip link set eth1 master bond0
+        - sudo ip link set eth2 master bond0
+        - sudo ip link set eth1 up
+        - sudo ip link set eth2 up
+        - sudo ip link set bond0 up
+        - sudo ip link add link bond0 name bond0.1 type vlan id 1
+        - sudo ip addr add 10.10.10.1/24 dev bond0.1
+        - sudo ip link set bond0.1 up
+        - sudo ip route add default via 10.10.10.254
+
+    server2:
+      kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - sudo ip link set eth2 down
+        - ip route add default via 172.20.20.1 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
+        - sudo ip link set eth1 master bond0
+        - sudo ip link set eth2 master bond0
+        - sudo ip link set eth1 up
+        - sudo ip link set eth2 up
+        - sudo ip link set bond0 up
+        - sudo ip link add link bond0 name bond0.1 type vlan id 1
+        - sudo ip addr add 10.10.10.2/24 dev bond0.1
+        - sudo ip link set bond0.1 up
+        - sudo ip route add default via 10.10.10.254
+
+    server-wan:
+      kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - ip route add default via 172.20.20.1 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        - sudo ip addr add 100.100.100.100/24 dev eth1
+        - sudo ip link set eth1 up
+        - sudo ip route add default via 100.100.100.254
+
+    ########## Telemetry and Logging Stack #########################
+    gnmic:
+      kind: linux
+      image: ghcr.io/openconfig/gnmic:0.39.1
+      binds:
+        - ./configs/gnmic/gnmic-config.yml:/gnmic-config.yml:ro
+      cmd: --config /gnmic-config.yml --log subscribe
+    prometheus:
+      kind: linux
+      image: quay.io/prometheus/prometheus:v2.54.1
+      binds:
+        - ./configs/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      cmd: --config.file=/etc/prometheus/prometheus.yml
+      ports:
+        - 9090:9090
+    grafana:
+      kind: linux
+      image: grafana/grafana:11.2.0
+      binds:
+        - ./configs/grafana/provisioning/datasources/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yaml:ro
+        - ./configs/grafana/provisioning/dashboards/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yaml:ro
+        - ./configs/grafana/dashboards:/var/lib/grafana/dashboards
+        - ./configs/grafana/flow_panels:/usr/share/grafana/public/flow_panels
+      ports:
+        - 3000:3000
+      env:
+        GF_INSTALL_PLUGINS: "andrewbmchugh-flow-panel"
+        GF_ORG_ROLE: "Admin"
+        GF_ORG_NAME: "Main Org"
+        GF_AUTH_ANONYMOUS_ENABLED: "true"
+        GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
+        GF_AUTH_ANONYMOUS: "true"
+    promtail:
+      kind: linux
+      image: grafana/promtail:3.2.0
+      binds:
+        - ./configs/promtail:/etc/promtail
+      cmd: --config.file=/etc/promtail/promtail-config.yml
+      ports:
+        - 9080:9080
+    loki:
+      kind: linux
+      image: grafana/loki:3.2.0
+      binds:
+        - ./configs/loki:/etc/loki
+      cmd: --config.file=/etc/loki/loki-config.yml
+      ports:
+        - 3100:3100
+    ########## End of Telemetry and Logging Stack #########################
+
+  links:
+
+    # WAN
+    - endpoints: [ "wan-core:e1-1", "pe1:e1-32" ]
+    - endpoints: [ "wan-core:e1-2", "pe2:e1-32" ]
+    - endpoints: [ "wan-core:e1-10", "server-wan:eth1" ]
+    # WAN - DC 
+    - endpoints: [ "pe1:e1-1", "b-leaf1:e1-32" ]
+    - endpoints: [ "pe2:e1-1", "b-leaf2:e1-32" ]
+
+    # Border Leaf - FW
+    - endpoints: [ "b-leaf1:e1-10", "fw1:eth1" ]
+    - endpoints: [ "b-leaf2:e1-10", "fw2:eth1" ]
+
+    # Border Leaf - Spine
+    - endpoints: [ "b-leaf1:e1-1", "spine1:e1-31" ]
+    - endpoints: [ "b-leaf1:e1-2", "spine2:e1-31" ]
+    - endpoints: [ "b-leaf2:e1-1", "spine1:e1-32" ]
+    - endpoints: [ "b-leaf2:e1-2", "spine2:e1-32" ]
+
+    # Spine - Leaf
+    - endpoints: [ "spine1:e1-1", "leaf1:e1-49" ]
+    - endpoints: [ "spine1:e1-2", "leaf2:e1-49" ]
+    - endpoints: [ "spine1:e1-3", "leaf3:e1-49" ]
+    - endpoints: [ "spine1:e1-4", "leaf4:e1-49" ]
+    - endpoints: [ "spine2:e1-1", "leaf1:e1-50" ]
+    - endpoints: [ "spine2:e1-2", "leaf2:e1-50" ]
+    - endpoints: [ "spine2:e1-3", "leaf3:e1-50" ]
+    - endpoints: [ "spine2:e1-4", "leaf4:e1-50" ]
+
+    #### Server Access  ###
+    - endpoints: [ "server1:eth1", "leaf1:e1-1" ]
+    - endpoints: [ "server1:eth2", "leaf2:e1-1" ]
+    - endpoints: [ "server2:eth1", "leaf3:e1-1" ]
+    - endpoints: [ "server2:eth2", "leaf4:e1-1" ]
