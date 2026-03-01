@@ -126,12 +126,12 @@ topology:
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
         ## Loopback interface that serves as VIP
-        - sudo ip addr add 1.1.1.1/32 dev lo
+        - sudo ip addr add 2.2.2.2/32 dev lo
         - sudo ip link set lo up
         ## GoBGP daemon
         - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
         - sleep 2
-        - gobgp global rib add 1.1.1.1/32
+        - gobgp global rib add 2.2.2.2/32
     server3:
       kind: linux
       binds:
@@ -158,12 +158,12 @@ topology:
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
         ## Loopback interface that serves as VIP
-        - sudo ip addr add 1.1.1.1/32 dev lo
+        - sudo ip addr add 3.3.3.3/32 dev lo
         - sudo ip link set lo up
         ## GoBGP daemon
         - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
         - sleep 2
-        - gobgp global rib add 1.1.1.1/32
+        - gobgp global rib add 3.3.3.3/32
     server4:
       kind: linux
       binds:
@@ -190,12 +190,12 @@ topology:
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
         ## Loopback interface that serves as VIP
-        - sudo ip addr add 1.1.1.1/32 dev lo
+        - sudo ip addr add 4.4.4.4/32 dev lo
         - sudo ip link set lo up
         ## GoBGP daemon
         - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
         - sleep 2
-        - gobgp global rib add 1.1.1.1/32
+        - gobgp global rib add 4.4.4.4/32
 
     server-wan:
       kind: linux
