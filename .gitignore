@@ -6,3 +6,4 @@
 !eli.clab.yaml
 !/configs/
 !/configs/**
+!iperf_traffic.py
