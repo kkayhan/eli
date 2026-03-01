@@ -68,15 +68,18 @@ topology:
 
     server1:
       kind: linux
+      binds:
+        - ./configs/startup_configs/gobgpd.toml:/etc/gobgp/gobgpd.toml
       exec:
-      ## Management port for SSH access , adding default route only for SSH traffic
+
+        ## Management port for SSH access , adding default route only for SSH traffic
         - sudo ip link set eth0 down
         - ip route add default via 172.20.20.1 dev eth0 table 100
         - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
         - ip rule add fwmark 1 table 100
         - sudo ip link set eth0 up
 
-      ## Data interfaces
+        ## Data interfaces
         - sudo ip link set eth1 down
         - sudo ip link set eth2 down
         - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
@@ -89,21 +92,27 @@ topology:
         - sudo ip addr add 10.10.10.1/24 dev bond0.1
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
-      ## Loopback interface that serves as VIP
+        ## Loopback interface that serves as VIP
         - sudo ip addr add 1.1.1.1/32 dev lo
         - sudo ip link set lo up
+        ## GoBGP daemon
+        - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
+        - sleep 2
+        - gobgp global rib add 1.1.1.1/32
 
     server2:
       kind: linux
+      binds:
+        - ./configs/startup_configs/gobgpd.toml:/etc/gobgp/gobgpd.toml
       exec:
-      ## Management port for SSH access , adding default route only for SSH traffic
+        ## Management port for SSH access , adding default route only for SSH traffic
         - sudo ip link set eth0 down
         - ip route add default via 172.20.20.1 dev eth0 table 100
         - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
         - ip rule add fwmark 1 table 100
         - sudo ip link set eth0 up
 
-      ## Data interfaces
+        ## Data interfaces
         - sudo ip link set eth1 down
         - sudo ip link set eth2 down
         - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
@@ -116,22 +125,26 @@ topology:
         - sudo ip addr add 10.10.10.2/24 dev bond0.1
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
-      ## Loopback interface that serves as VIP
+        ## Loopback interface that serves as VIP
         - sudo ip addr add 1.1.1.1/32 dev lo
         - sudo ip link set lo up
-
-
+        ## GoBGP daemon
+        - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
+        - sleep 2
+        - gobgp global rib add 1.1.1.1/32
     server3:
       kind: linux
+      binds:
+        - ./configs/startup_configs/gobgpd.toml:/etc/gobgp/gobgpd.toml
       exec:
-      ## Management port for SSH access , adding default route only for SSH traffic
+        ## Management port for SSH access , adding default route only for SSH traffic
         - sudo ip link set eth0 down
         - ip route add default via 172.20.20.1 dev eth0 table 100
         - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
         - ip rule add fwmark 1 table 100
         - sudo ip link set eth0 up
 
-      ## Data interfaces
+        ## Data interfaces
         - sudo ip link set eth1 down
         - sudo ip link set eth2 down
         - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
@@ -144,21 +157,26 @@ topology:
         - sudo ip addr add 10.10.10.3/24 dev bond0.1
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
-      ## Loopback interface that serves as VIP
+        ## Loopback interface that serves as VIP
         - sudo ip addr add 1.1.1.1/32 dev lo
         - sudo ip link set lo up
-
+        ## GoBGP daemon
+        - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
+        - sleep 2
+        - gobgp global rib add 1.1.1.1/32
     server4:
       kind: linux
+      binds:
+        - ./configs/startup_configs/gobgpd.toml:/etc/gobgp/gobgpd.toml
       exec:
-      ## Management port for SSH access , adding default route only for SSH traffic
+        ## Management port for SSH access , adding default route only for SSH traffic
         - sudo ip link set eth0 down
         - ip route add default via 172.20.20.1 dev eth0 table 100
         - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
         - ip rule add fwmark 1 table 100
         - sudo ip link set eth0 up
 
-      ## Data interfaces
+        ## Data interfaces
         - sudo ip link set eth1 down
         - sudo ip link set eth2 down
         - sudo ip link add bond0 type bond mode 802.3ad miimon 100 lacp_rate fast
@@ -171,28 +189,31 @@ topology:
         - sudo ip addr add 10.10.10.4/24 dev bond0.1
         - sudo ip link set bond0.1 up
         - sudo ip route add default via 10.10.10.254
-      ## Loopback interface that serves as VIP
+        ## Loopback interface that serves as VIP
         - sudo ip addr add 1.1.1.1/32 dev lo
         - sudo ip link set lo up
+        ## GoBGP daemon
+        - bash -c "nohup gobgpd -f /etc/gobgp/gobgpd.toml > /dev/null 2>&1 &"
+        - sleep 2
+        - gobgp global rib add 1.1.1.1/32
 
     server-wan:
       kind: linux
       exec:
-      ## Management port for SSH access , adding default route only for SSH traffic
+        ## Management port for SSH access , adding default route only for SSH traffic
         - sudo ip link set eth0 down
         - ip route add default via 172.20.20.1 dev eth0 table 100
         - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
         - ip rule add fwmark 1 table 100
         - sudo ip link set eth0 up
 
-      ## Data interfaces
+        ## Data interfaces
         - sudo ip link set eth1 down
         - sudo ip link add link eth1 name eth1.1 type vlan id 1
         - sudo ip addr add 123.0.0.1/31 dev eth1.1
         - sudo ip link set eth1 up
         - sudo ip link set eth1.1 up
         - sudo ip route add default via 123.0.0.0
-
 
     ########## Telemetry and Logging Stack #########################
     gnmic:
@@ -227,6 +248,7 @@ topology:
         GF_AUTH_ANONYMOUS_ORG_ROLE: Admin
         GF_AUTH_ANONYMOUS: "true"
         GF_USERS_DEFAULT_THEME: "light"
+        GF_DASHBOARDS_DEFAULT_HOME_DASHBOARD_PATH: "/var/lib/grafana/dashboards/eli-telemetry.json"
     promtail:
       kind: linux
       image: grafana/promtail:3.2.0
