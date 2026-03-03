@@ -1,0 +1,58 @@
+---
+- name: Cleanup all Ansible-configured policies from SRLinux b-leaf nodes
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  vars:
+    srlinux_user: admin
+    srlinux_pass: "NokiaSrl1!"
+    fw_vrf: fw-ipvrf
+    policy_name: police
+
+  tasks:
+    - name: Display target nodes for cleanup
+      ansible.builtin.debug:
+        msg: "Will cleanup config on {{ item.name }}"
+      loop: "{{ nodes }}"
+
+    - name: Delete all Ansible-configured policies via JSON-RPC
+      ansible.builtin.uri:
+        url: "https://{{ item.name }}/jsonrpc"
+        method: POST
+        url_username: "{{ srlinux_user }}"
+        url_password: "{{ srlinux_pass }}"
+        force_basic_auth: true
+        validate_certs: false
+        headers:
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          jsonrpc: "2.0"
+          id: 1
+          method: set
+          params:
+            commands:
+              - action: delete
+                path: "/network-instance[name={{ fw_vrf }}]/inter-instance-policies"
+              - action: delete
+                path: "/network-instance[name={{ vrf_name }}]/inter-instance-policies"
+              - action: delete
+                path: "/network-instance[name={{ vrf_name }}]/policy-forwarding"
+              - action: delete
+                path: "/routing-policy/prefix-set[name={{ policy_name }}]"
+              - action: delete
+                path: "/routing-policy/policy[name={{ policy_name }}]"
+        status_code: 200
+      loop: "{{ nodes }}"
+      register: cleanup_results
+
+    - name: Display cleanup responses
+      ansible.builtin.debug:
+        msg: "{{ item.item.name }}: {{ item.json | default('No response') }}"
+      loop: "{{ cleanup_results.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"

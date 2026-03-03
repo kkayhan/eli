@@ -1,0 +1,102 @@
+---
+- name: Configure Nokia SRLinux b-leaf nodes via JSON-RPC
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars.yml
+
+  vars:
+    srlinux_user: admin
+    srlinux_pass: "NokiaSrl1!"
+    fw_vrf: fw-ipvrf
+    policy_name: police
+    pbf_policy: pbf1
+    pbf_interface: "ethernet-1/32.1"
+    rule_id: 10
+    statement_id: "10"
+
+  tasks:
+    - name: Display target nodes
+      ansible.builtin.debug:
+        msg: "Will configure {{ item.name }} with next-hop {{ item.next_hop }}"
+      loop: "{{ nodes }}"
+
+    - name: Configure SRLinux nodes via JSON-RPC
+      ansible.builtin.uri:
+        url: "https://{{ item.name }}/jsonrpc"
+        method: POST
+        url_username: "{{ srlinux_user }}"
+        url_password: "{{ srlinux_pass }}"
+        force_basic_auth: true
+        validate_certs: false
+        headers:
+          Content-Type: "application/json"
+        body_format: json
+        body:
+          jsonrpc: "2.0"
+          id: 1
+          method: set
+          params:
+            commands:
+              # 1. fw-ipvrf: import policy
+              - action: update
+                path: "/network-instance[name={{ fw_vrf }}]/inter-instance-policies/apply-policy"
+                value:
+                  import-policy: "{{ policy_name }}"
+
+              # 2. VRF: export policy
+              - action: update
+                path: "/network-instance[name={{ vrf_name }}]/inter-instance-policies/apply-policy"
+                value:
+                  export-policy: "{{ policy_name }}"
+
+              # 3. PBF policy with rule
+              - action: update
+                path: "/network-instance[name={{ vrf_name }}]/policy-forwarding/policy[policy-id={{ pbf_policy }}]"
+                value:
+                  type: "pbr-policy"
+                  rule:
+                    - sequence-id: "{{ rule_id }}"
+                      action:
+                        network-instance: "{{ fw_vrf }}"
+                        next-hop: "{{ item.next_hop }}"
+                      match:
+                        ipv4:
+                          destination-ip:
+                            prefix: "{{ prefix }}"
+
+              # 4. PBF interface binding
+              - action: update
+                path: "/network-instance[name={{ vrf_name }}]/policy-forwarding/interface[subinterface={{ pbf_interface }}]"
+                value:
+                  apply-forwarding-policy: "{{ pbf_policy }}"
+
+              # 5. Routing-policy prefix-set
+              - action: update
+                path: "/routing-policy/prefix-set[name={{ policy_name }}]"
+                value:
+                  prefix:
+                    - ip-prefix: "{{ prefix }}"
+                      mask-length-range: "{{ mask_range }}"
+
+              # 6. Routing-policy statement
+              - action: update
+                path: "/routing-policy/policy[name={{ policy_name }}]/statement[name={{ statement_id }}]"
+                value:
+                  match:
+                    prefix:
+                      prefix-set: "{{ policy_name }}"
+                  action:
+                    policy-result: "accept"
+        status_code: 200
+      loop: "{{ nodes }}"
+      register: jsonrpc_results
+
+    - name: Display JSON-RPC responses
+      ansible.builtin.debug:
+        msg: "{{ item.item.name }}: {{ item.json | default('No response') }}"
+      loop: "{{ jsonrpc_results.results }}"
+      loop_control:
+        label: "{{ item.item.name }}"

@@ -60,11 +60,78 @@ topology:
         - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
         - ip rule add fwmark 1 table 100
         - sudo ip link set eth0 up
-        - sudo ip addr add 100.100.100.100/24 dev eth1
-        - sudo ip link set eth1 up
-        - sudo ip route add default via 100.100.100.254
+        
+        # Create 802.1q subinterfaces (assuming parent is eth1, VLANs 1 and 2)
+        - sudo ip link add link eth1 name eth1.1 type vlan id 1
+        - sudo ip link add link eth1 name eth1.2 type vlan id 2
+         
+        # Bring interfaces up
+        - sudo ip link set dev eth1 up
+        - sudo ip link set dev eth1.1 up
+        - sudo ip link set dev eth1.2 up
+        
+         # Assign IP addresses to subinterfaces (acting as L3 gateways)
+        - sudo ip addr add 10.0.10.1/24 dev eth1.1
+        - sudo ip addr add 10.0.20.1/24 dev eth1.2
+ 
+         # Enable IP forwarding in the kernel
+        - sudo sysctl -w net.ipv4.ip_forward=1
+        - sudo sysctl -w net.ipv6.conf.all.forwarding=1
+ 
+         # Flush existing rules and enforce L3 forwarding without NAT
+        - sudo iptables -F
+        - sudo iptables -t nat -F
+        - sudo iptables -P FORWARD DROP
+         
+         # Configure firewall policies
+        - sudo iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+        - sudo iptables -A FORWARD -i eth1.1 -o eth1.2 -j ACCEPT
+        - sudo iptables -A FORWARD -i eth1.2 -o eth1.1 -j ACCEPT
+        ## Add default route for egress traffic
+        - sudo ip route add default dev eth1.2
+        ## Ping the other FW simulating heart beat
+        - bash -c "nohup bash -c 'sleep 30; while true; do ping -c 1 10.0.10.254; sleep 60; done' >/dev/null 2>&1 &"
+
     fw2:
       kind: linux
+      exec:
+        - sudo ip link set eth0 down
+        - sudo ip link set eth1 down
+        - ip route add default via 172.20.20.1 dev eth0 table 100
+        - iptables -t mangle -A OUTPUT -p tcp --dport 22 -j MARK --set-mark 1
+        - ip rule add fwmark 1 table 100
+        - sudo ip link set eth0 up
+        
+        # Create 802.1q subinterfaces (assuming parent is eth1, VLANs 1 and 2)
+        - sudo ip link add link eth1 name eth1.1 type vlan id 1
+        - sudo ip link add link eth1 name eth1.2 type vlan id 2
+         
+        # Bring interfaces up
+        - sudo ip link set dev eth1 up
+        - sudo ip link set dev eth1.1 up
+        - sudo ip link set dev eth1.2 up
+        
+         # Assign IP addresses to subinterfaces (acting as L3 gateways)
+        - sudo ip addr add 10.0.10.2/24 dev eth1.1
+        - sudo ip addr add 10.0.20.2/24 dev eth1.2
+ 
+         # Enable IP forwarding in the kernel
+        - sudo sysctl -w net.ipv4.ip_forward=1
+        - sudo sysctl -w net.ipv6.conf.all.forwarding=1
+ 
+         # Flush existing rules and enforce L3 forwarding without NAT
+        - sudo iptables -F
+        - sudo iptables -t nat -F
+        - sudo iptables -P FORWARD DROP
+         
+         # Configure firewall policies
+        - sudo iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+        - sudo iptables -A FORWARD -i eth1.1 -o eth1.2 -j ACCEPT
+        - sudo iptables -A FORWARD -i eth1.2 -o eth1.1 -j ACCEPT
+        ## Add default route for egress traffic
+        - sudo ip route add default dev eth1.2
+        ## Ping the other FW simulating heart beat
+        - bash -c "nohup bash -c 'sleep 30; while true; do ping -c 1 10.0.10.254; sleep 60; done' >/dev/null 2>&1 &"
 
     server1:
       kind: linux

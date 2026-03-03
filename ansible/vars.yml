@@ -1,0 +1,12 @@
+---
+# Node list: each entry has a name (hostname) and its next-hop IP
+nodes:
+  - name: b-leaf1
+    next_hop: 10.0.10.1
+  - name: b-leaf2
+    next_hop: 10.0.10.2
+
+# Traffic to be sent to FW
+prefix: "2.2.2.2/32"
+mask_range: "32..32"
+vrf_name: aliasing_l3

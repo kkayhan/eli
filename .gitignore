@@ -7,3 +7,5 @@
 !/configs/
 !/configs/**
 !iperf_traffic.py
+!/ansible/
+!/ansible/**
