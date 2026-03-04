@@ -47,12 +47,6 @@ All servers are dual-homed to leaf pairs via LACP bonds (all-active EVPN multi-h
 
 ## Quick Start
 
-### Prerequisites
-
-- [Containerlab](https://containerlab.dev/) installed
-- Nokia SR Linux container image `ghcr.io/nokia/srlinux:25.10.2`
-- Docker
-
 ### Deploy the Lab
 
 ```bash
@@ -62,7 +56,7 @@ sudo clab deploy -t eli.clab.yaml
 
 ### Access Grafana Dashboard
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. The dashboard loads automatically with the topology view and telemetry panels. No login required (anonymous admin access enabled).
+Open [http://localhost:3000](http://localhost:3000) in your browser. No login required (anonymous admin access enabled). Once in the Grafana UI, navigate to the **Dashboards** menu and select the available dashboard to view the topology and telemetry panels.
 
 ### Access Network Devices
 
@@ -73,99 +67,6 @@ ssh admin@clab-eli-leaf1     # password: NokiaSrl1!
 # Or use containerlab
 sudo clab inspect -t eli.clab.yaml
 ```
-
-## Use Cases
-
-### 1. EVPN L3 IP Aliasing with Centralized Routing
-
-This is the primary use case of the lab. It demonstrates how to achieve **optimal north-south and east-west routing** in a datacenter fabric using SR Linux's centralized routing model with EVPN IP aliasing.
-
-#### The Problem
-
-Servers (simulating Kubernetes nodes) announce their workload IP addresses (pod IPs) to the fabric via BGP. These workloads are dynamic — they can move between servers, which means BGP peering would need to shift from one leaf pair to another. Reconfiguring BGP peerings every time a workload moves is operationally expensive.
-
-A common workaround is to extend a L2 broadcast domain across the fabric so workloads can peer with a single pair of border-leaves. However, this makes **east-west traffic suboptimal** because all inter-server traffic must be routed via the border-leaves (tromboning).
-
-#### The Solution
-
-The lab uses two SR Linux features to solve both problems at once:
-
-- **Centralized Routing Model with PE-CE Routes Resolved over EVPN-IFL** — Leaf5 and leaf6 act as **anchor leaves** for the BGP control plane. All servers peer with these two leaves regardless of which leaf pair they are physically connected to. Servers use eBGP multihop (GoBGP, AS 11111) to announce their loopback VIP addresses (1.1.1.1, 2.2.2.2, 3.3.3.3) to the anchor leaves (AS 65111).
-
-- **L3 ESI (EVPN IP Aliasing)** — Virtual Ethernet Segments are configured on each leaf pair where a server is physically connected. This allows the fabric to route traffic **directly to the correct leaf pair** without tromboning through the anchor leaves (leaf5/leaf6).
-
-#### How It Works
-
-| Server   | Physical Leaves | Bond IP      | Loopback VIP | BGP Peers (Anchor Leaves) |
-|----------|-----------------|-------------|-------------|---------------------------|
-| server1  | leaf1, leaf2    | 10.10.10.1  | 1.1.1.1     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
-| server2  | leaf3, leaf4    | 10.10.10.2  | 2.2.2.2     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
-| server3  | leaf3, leaf4    | 10.10.10.3  | 3.3.3.3     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
-| server4  | leaf5, leaf6    | 10.10.10.4  | 4.4.4.4     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
-
-Traffic from `server-wan` destined to `1.1.1.1` enters via the WAN core, reaches the border-leaves, and is routed **directly to leaf1/leaf2** (where server1 is physically connected) — not to leaf5/leaf6. This is optimal routing.
-
-#### The Best of Both Worlds
-
-| Approach | East-West Routing | Control Plane Stability | This Lab |
-|----------|------------------|------------------------|----------|
-| L2 stretch to border-leaves | Suboptimal (trombone) | Stable | No |
-| Per-leaf BGP peering | Optimal | Requires reconfig on move | No |
-| Centralized routing + IP aliasing | Optimal | Stable (anchor leaves) | Yes |
-
-#### Try It
-
-Run the traffic generator to send traffic to the server VIPs and observe the traffic flow in Grafana:
-
-```bash
-sudo python3 iperf_traffic.py
-```
-
-The interactive menu allows you to:
-1. **Start traffic** — specify destination VIP(s) (1.1.1.1, 2.2.2.2, 3.3.3.3), bandwidth, and number of flows
-2. **Stop traffic**
-3. **Show iperf process status**
-
-Watch the Grafana dashboard topology panel — traffic flows directly from the border-leaves to the correct leaf pair, bypassing the anchor leaves (leaf5/leaf6).
-
----
-
-### 2. Policy-Based Routing for Firewall Service Insertion
-
-This use case demonstrates how to steer traffic through firewall VMs using **policy-based forwarding (PBF)** and how to automate SR Linux configuration using **JSON-RPC** with Ansible.
-
-#### Overview
-
-Two firewall VMs (fw1, fw2) are connected to the border-leaves. Each firewall has two VLAN subinterfaces:
-- **VLAN 1** (ingress): connected to `fw-ipvrf` (VNI 55)
-- **VLAN 2** (egress): connected to `aliasing_l3` (VNI 100)
-
-The Ansible playbook configures PBF policies on the border-leaves to redirect traffic matching a specific prefix (e.g., `2.2.2.2/32`) through the firewall VMs before delivering it to the destination.
-
-#### Apply PBR Policy
-
-```bash
-cd ansible
-ansible-playbook fw.yml
-```
-
-This configures the border-leaves via JSON-RPC to:
-1. Create inter-instance import/export policies between `aliasing_l3` and `fw-ipvrf`
-2. Create a PBF policy matching traffic to `2.2.2.2/32`
-3. Bind the PBF policy to the WAN-facing interface (`ethernet-1/32.1`)
-4. Traffic matching the prefix is redirected to the firewall next-hops (fw1: `10.0.10.1`, fw2: `10.0.10.2`) with load balancing
-
-#### Observe in Grafana
-
-Start traffic to `2.2.2.2` and watch the Grafana dashboard — traffic now flows through the firewall VMs before reaching the destination server.
-
-#### Cleanup
-
-```bash
-ansible-playbook cleanup.yml
-```
-
-This removes all PBF policies and inter-instance routing policies, restoring direct routing.
 
 ## Underlay and Overlay Design
 
@@ -226,33 +127,103 @@ The lab includes a complete observability pipeline:
 
 The Grafana dashboard includes a **topology flow panel** that visualizes real-time traffic throughput on each link with color-coded indicators.
 
-## Project Structure
+## Use Cases
 
+### 1. EVPN L3 IP Aliasing with Centralized Routing
+
+This is the primary use case of the lab. It demonstrates how to achieve **optimal north-south and east-west routing** in a datacenter fabric using SR Linux's centralized routing model with EVPN IP aliasing.
+
+#### The Problem
+
+Servers (simulating Kubernetes nodes) announce their workload IP addresses (pod IPs) to the fabric via BGP. These workloads are dynamic — they can move between servers, which means BGP peering would need to shift from one leaf pair to another. Reconfiguring BGP peerings every time a workload moves is operationally expensive.
+
+A common workaround is to extend a L2 broadcast domain across the fabric so workloads can peer with a single pair of border-leaves. However, this makes **east-west traffic suboptimal** because all inter-server traffic must be routed via the border-leaves (tromboning).
+
+#### The Solution
+
+The lab uses two SR Linux features to solve both problems at once:
+
+- **Centralized Routing Model with PE-CE Routes Resolved over EVPN-IFL** — Leaf5 and leaf6 act as **anchor leaves** for the BGP control plane. All servers peer with these two leaves regardless of which leaf pair they are physically connected to. Servers use eBGP multihop (GoBGP, AS 11111) to announce their loopback VIP addresses (1.1.1.1, 2.2.2.2, 3.3.3.3) to the anchor leaves (AS 65111).
+
+- **L3 ESI (EVPN IP Aliasing)** — Virtual Ethernet Segments are configured on each leaf pair where a server is physically connected. This allows the fabric to route traffic **directly to the correct leaf pair** without tromboning through the anchor leaves (leaf5/leaf6).
+
+#### How It Works
+
+| Server   | Physical Leaves | Bond IP      | Loopback VIP | BGP Peers (Anchor Leaves) |
+|----------|-----------------|-------------|-------------|---------------------------|
+| server1  | leaf1, leaf2    | 10.10.10.1  | 1.1.1.1     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
+| server2  | leaf3, leaf4    | 10.10.10.2  | 2.2.2.2     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
+| server3  | leaf3, leaf4    | 10.10.10.3  | 3.3.3.3     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
+| server4  | leaf5, leaf6    | 10.10.10.4  | 4.4.4.4     | leaf5 (1.0.0.1), leaf6 (2.0.0.2) |
+
+Traffic from `server-wan` destined to `1.1.1.1` enters via the WAN core, reaches the border-leaves, and is routed **directly to leaf1/leaf2** (where server1 is physically connected) — not to leaf5/leaf6. This is optimal routing.
+
+#### The Best of Both Worlds
+
+| Approach | East-West Routing | Control Plane Stability | This Lab |
+|----------|------------------|------------------------|----------|
+| L2 stretch to border-leaves | Suboptimal (trombone) | Stable | No |
+| Per-leaf BGP peering | Optimal | Requires reconfig on move | No |
+| Centralized routing + IP aliasing | Optimal | Stable (anchor leaves) | Yes |
+
+#### Try It
+
+Run the traffic generator to send traffic to the server VIPs and observe the traffic flow in Grafana:
+
+```bash
+sudo python3 iperf_traffic.py
 ```
-eli/
-├── eli.clab.yaml                    # Containerlab topology definition
-├── eli.clab.drawio                  # Network diagram (draw.io)
-├── iperf_traffic.py                 # Interactive traffic generator
-├── ansible/
-│   ├── fw.yml                       # PBR firewall policy playbook
-│   ├── cleanup.yml                  # Policy cleanup playbook
-│   └── vars.yml                     # Ansible variables
-├── configs/
-│   ├── startup_configs/             # Device startup configurations
-│   │   ├── spine1.cfg, spine2.cfg
-│   │   ├── leaf1.cfg .. leaf6.cfg
-│   │   ├── b-leaf1.cfg, b-leaf2.cfg
-│   │   ├── pe1.cfg, pe2.cfg
-│   │   ├── wan-core.cfg
-│   │   └── gobgpd.toml             # GoBGP config for servers
-│   ├── gnmic/gnmic-config.yml       # gNMI collector config
-│   ├── prometheus/prometheus.yml    # Prometheus scrape config
-│   ├── grafana/                     # Grafana dashboards and provisioning
-│   │   ├── dashboards/eli-telemetry.json
-│   │   └── flow_panels/topology.svg
-│   ├── loki/loki-config.yml
-│   └── promtail/promtail-config.yml
+
+The interactive menu allows you to:
+1. **Start traffic** — specify destination VIP(s) (1.1.1.1, 2.2.2.2, 3.3.3.3), bandwidth, and number of flows
+2. **Stop traffic**
+3. **Show iperf process status**
+
+Watch the Grafana dashboard topology panel — traffic flows directly from the border-leaves to the correct leaf pair, bypassing the anchor leaves (leaf5/leaf6).
+
+For more details on the SR Linux features used, see the Nokia SR Linux documentation:
+- [Centralized Routing Model & PE-CE Routes Resolved over EVPN-IFL](https://documentation.nokia.com/srlinux/24-7/books/evpn-guide/evpn-vxlan-tunnels-layer-3.html)
+- [Combined ECMP for BGP PE-CE and EVPN IFL](https://documentation.nokia.com/srlinux/25-7/books/vpn-services/combined-bgp-pe-ce-weighted-ecmp-and-evpn-ifl.html)
+- [EVPN IP Aliasing for IP Prefix Routes](https://documentation.nokia.com/acg/24-7-2/books/layer-2-services-evpn-md/m1258-evpn-ip-aliasing-ip-prefix-md-cli.html)
+
+---
+
+### 2. Policy-Based Routing for Firewall Service Insertion
+
+This use case demonstrates how to steer traffic through firewall VMs using **policy-based forwarding (PBF)** and how to automate SR Linux configuration using **JSON-RPC** with Ansible.
+
+#### Overview
+
+Two firewall VMs (fw1, fw2) are connected to the border-leaves. Each firewall has two VLAN subinterfaces:
+- **VLAN 1** (ingress): connected to `fw-ipvrf` (VNI 55)
+- **VLAN 2** (egress): connected to `aliasing_l3` (VNI 100)
+
+The Ansible playbook configures PBF policies on the border-leaves to redirect traffic matching a specific prefix (e.g., `2.2.2.2/32`) through the firewall VMs before delivering it to the destination.
+
+#### Apply PBR Policy
+
+```bash
+cd ansible
+ansible-playbook fw.yml
 ```
+
+This configures the border-leaves via JSON-RPC to:
+1. Create inter-instance import/export policies between `aliasing_l3` and `fw-ipvrf`
+2. Create a PBF policy matching traffic to `2.2.2.2/32`
+3. Bind the PBF policy to the WAN-facing interface (`ethernet-1/32.1`)
+4. Traffic matching the prefix is redirected to the firewall next-hops (fw1: `10.0.10.1`, fw2: `10.0.10.2`) with load balancing
+
+#### Observe in Grafana
+
+Start traffic to `2.2.2.2` and watch the Grafana dashboard — traffic now flows through the firewall VMs before reaching the destination server.
+
+#### Cleanup
+
+```bash
+ansible-playbook cleanup.yml
+```
+
+This removes all PBF policies and inter-instance routing policies, restoring direct routing.
 
 ## Destroy the Lab
 
