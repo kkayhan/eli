@@ -1,4 +1,4 @@
-# ELI - EVPN L3 IP Aliasing Datacenter Lab
+# EVPN L3 IP Aliasing Datacenter Lab
 
 A containerlab-based datacenter fabric demonstrating advanced Nokia SR Linux EVPN features including centralized routing with IP aliasing, OSPF unnumbered underlay, iBGP EVPN overlay with dynamic neighbors, and policy-based routing for service insertion — all with a fully integrated telemetry and observability stack.
 
