@@ -10,3 +10,4 @@
 !iperf_traffic.py
 !/ansible/
 !/ansible/**
+!topology.png

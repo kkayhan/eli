@@ -4,42 +4,7 @@ A containerlab-based datacenter fabric demonstrating advanced Nokia SR Linux EVP
 
 ## Topology
 
-```
-                        +-----------+
-                        | server-wan|
-                        |123.0.0.1  |
-                        +-----+-----+
-                              |
-                        +-----+-----+
-                        |  wan-core |
-                        |100.1.1.100|
-                        +--+-----+--+
-                           |     |
-                     +-----+     +-----+
-                     |                 |
-                 +---+---+         +---+---+
-                 |  pe1  |         |  pe2  |
-                 +---+---+         +---+---+
-                     |                 |
-                 +---+----+        +---+----+
-                 | b-leaf1|        | b-leaf2|
-                 +--+-+---+        +--+-+---+
-                    | |               | |
-               fw1--+ |               | +--fw2
-                      |               |
-           +----------+----+   +------+--------+
-           |    spine1      |   |     spine2     |
-           +--+--+--+--+--++   ++--+--+--+--+--+
-              |  |  |  |  |      |  |  |  |  |
-         +----+  |  |  |  +------+  |  |  |  +----+
-         |       |  |  |            |  |  |        |
-      +--+--+ +--+--+ +--+--+  +---+-+ +--+--+ +--+--+
-      |leaf1| |leaf3| |leaf5|  |leaf2| |leaf4| |leaf6|
-      +--+--+ +--+--+ +--+--+  +--+--+ +--+--+ +--+--+
-         |       |  |     |        |       |  |     |
-         +--srv1-+  |     +--srv4--+       |  |     |
-                 +--srv2--+            +--srv3--+
-```
+![Topology](topology.png)
 
 **Nodes:** 2 spines, 6 leaves, 2 border-leaves, 2 PE routers, 1 WAN core, 4 servers, 1 WAN server, 2 firewall VMs
 
